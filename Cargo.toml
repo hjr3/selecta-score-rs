@@ -3,14 +3,18 @@ name = "selecta_score"
 version = "0.0.2"
 description = "A Rust implementation of the Selecta scoring algorithm."
 license = "MIT"
+
 authors = [ "herman@hermanradtke.com" ]
+
 documentation = "https://github.com/hjr3/selecta-score-rs"
 homepage = "https://github.com/hjr3/selecta-score-rs"
 repository = "https://github.com/hjr3/selecta-score-rs"
 
 [lib]
+
 name = "selecta_score"
 crate-type = ["dylib"]
 
 [dependencies]
+
 libc = "0.2.6"

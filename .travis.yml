@@ -6,3 +6,4 @@ rust:
   - stable
 
 sudo: false
+notifications: false
