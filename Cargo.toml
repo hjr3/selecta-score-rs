@@ -1,0 +1,13 @@
+[package]
+name = "selecta_score"
+version = "0.0.1"
+description = "A Rust implementation of the Selecta scoring algorithm."
+license = "MIT"
+authors = [ "herman@hermanradtke.com" ]
+
+[lib]
+name = "score"
+crate-type = ["dylib"]
+
+[dependencies]
+libc = "0.2.6"
