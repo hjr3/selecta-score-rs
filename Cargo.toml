@@ -9,7 +9,7 @@ homepage = "https://github.com/hjr3/selecta-score-rs"
 repository = "https://github.com/hjr3/selecta-score-rs"
 
 [lib]
-name = "score"
+name = "selecta_score"
 crate-type = ["dylib"]
 
 [dependencies]
