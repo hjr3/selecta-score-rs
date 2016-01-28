@@ -3,11 +3,10 @@ extern crate libc;
 use libc::c_char;
 
 use std::str::from_utf8;
-use std::ascii::AsciiExt;
 use std::ffi::CStr;
 
-#[no_mangle]
 /// External interface for the scoring algorithm
+#[no_mangle]
 pub extern "C" fn selecta_score(choice: *const c_char, query: *const c_char) -> f64 {
     let slice = unsafe { CStr::from_ptr(choice).to_bytes() };
     let choice = from_utf8(slice).unwrap();
@@ -18,6 +17,17 @@ pub extern "C" fn selecta_score(choice: *const c_char, query: *const c_char) -> 
     score(choice, query)
 }
 
+/// Given a chosen word, score how well a substring matches.
+///
+/// Example:
+///
+/// ```rust
+/// use selecta_score::score;
+///
+/// assert_eq!(0.0, score("selecta", "sell"));
+/// assert!(0.0 < score("selecta", "sela"));
+/// assert!(score("selecta", "select") > score("selecta", "sela"));
+/// ```
 pub fn score(choice: &str, query: &str) -> f64 {
     if query.len() == 0 {
         return 1.0;
@@ -28,8 +38,8 @@ pub fn score(choice: &str, query: &str) -> f64 {
     }
 
     // TODO: use UTF-8 versions of `to_lowercase()` when stable.
-    let lower_choice = choice.to_ascii_lowercase();
-    let lower_query = query.to_ascii_lowercase();
+    let lower_choice = choice.to_lowercase();
+    let lower_query = query.to_lowercase();
     let lower_choice_len = lower_choice.len() as f64;
 
     let match_length = compute_match_length(lower_choice.as_ref(), lower_query.chars().collect());
@@ -47,7 +57,7 @@ pub fn score(choice: &str, query: &str) -> f64 {
 /// Find the length of the shortest substring matching the given characters.
 fn compute_match_length(haystack: &str, needles: Vec<char>) -> Option<usize> {
     let first_char = needles.first().expect("Unable to get first char of needle");
-    let rest = &needles[1..]; // use tail() whenever it stabilizes
+    let rest = &needles[1..];
 
     let first_indexes = find_char_in_string(haystack, first_char);
 
@@ -112,32 +122,32 @@ fn find_from_offset(haystack: &str, needle: char, offset: usize) -> Option<usize
 mod tests {
     use super::*;
 
-	#[test]
+    #[test]
     fn test_scores_zero_when_choice_is_empty() {
         assert!(score("", "a") == 0.0);
     }
 
-	#[test]
+    #[test]
     fn test_scores_one_when_query_is_empty() {
         assert!(score("a", "") == 1.0);
     }
 
-	#[test]
+    #[test]
     fn test_scores_zero_when_the_query_longer_than_choice() {
         assert!(score("short", "longer") == 0.0);
     }
 
-	#[test]
+    #[test]
     fn test_scores_zero_when_query_does_not_match_at_all() {
         assert!(score("a", "b") == 0.0);
     }
 
-	#[test]
+    #[test]
     fn test_scores_zero_when_only_prefix_of_query_matches() {
         assert!(score("ab", "ac") == 0.0);
     }
 
-	#[test]
+    #[test]
     fn test_scores_greater_than_zero_when_matches() {
         let given_choices: Vec<&str> = vec!("a", "ab", "ba", "bab");
 
@@ -148,7 +158,7 @@ mod tests {
         assert!(score("babababab", "aaaa") > 0.0);
     }
 
-	#[test]
+    #[test]
     fn test_scores_1_normalized_to_length_when_the_query_equals_choice() {
         assert!(score("a", "a") == 1.0);
         assert!(score("ab", "ab") == 0.5);
@@ -156,30 +166,30 @@ mod tests {
         assert!(score("spec/search_spec.rb", "sear") == 1.0 / "spec/search_spec.rb".len() as f64);
     }
 
-	#[test]
+    #[test]
     fn test_matches_punctuation() {
         assert!(score("/! symbols $^", "/!$^") > 0.0);
     }
 
-	#[test]
+    #[test]
     fn test_is_case_insensitive() {
         assert!(score("a", "A") == 1.0);
         assert!(score("A", "a") == 1.0);
     }
 
-	#[test]
+    #[test]
     fn test_does_not_match_when_same_letter_is_repeated_in_choice() {
         assert!(score("a", "aa") == 0.0);
     }
 
-	#[test]
+    #[test]
     fn test_scores_higher_for_better_matches() {
         assert!(score("selecta.gemspec", "asp") > score("algorithm4_spec.rb", "asp"));
         assert!(score("README.md", "em") > score("benchmark.rb", "em"));
         assert!(score("search.rb", "sear") > score("spec/search_spec.rb", "sear"));
     }
 
-	#[test]
+    #[test]
     fn test_scores_shorter_matches_higher() {
         assert!(score("fbb", "fbb") > score("foo bar baz", "fbb"));
         assert!(score("foo", "foo") > score("longer foo", "foo"));
@@ -187,12 +197,12 @@ mod tests {
         assert!(score("1/2/3/4", "1/2/3") > score("1/9/2/3/4", "1/2/3"));
     }
 
-	#[test]
+    #[test]
     fn test_sometimes_score_longer_strings_higher_if_better_match() {
         assert!(score("long 12 long", "12") > score("1 long 2", "12"));
     }
 
-	#[test]
+    #[test]
     fn test_scores_higher_of_two_matches_regardless_of_order() {
         let tight = "12";
         let loose = "1padding2";
