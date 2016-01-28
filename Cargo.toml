@@ -1,6 +1,6 @@
 [package]
 name = "selecta_score"
-version = "0.0.1"
+version = "0.0.2"
 description = "A Rust implementation of the Selecta scoring algorithm."
 license = "MIT"
 authors = [ "herman@hermanradtke.com" ]
