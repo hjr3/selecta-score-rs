@@ -48,8 +48,8 @@ pub fn score(choice: &str, query: &str) -> f64 {
         Some(match_length) => {
             let score = lower_query.len() as f64 / match_length as f64;
             score / lower_choice_len
-        },
-        None => { 0.0 },
+        }
+        None => 0.0,
     }
 
 }
@@ -61,18 +61,16 @@ fn compute_match_length(haystack: &str, needles: Vec<char>) -> Option<usize> {
 
     let first_indexes = find_char_in_string(haystack, first_char);
 
-    first_indexes.iter().map(|&first_index|
-        match find_end_of_match(haystack, rest, first_index) {
-            Some(index) => {
-                Some(index - first_index + 1)
-            },
-            None => { None }
-        }
-    ).filter(|&m|
-        m.is_some()
-    ).map(|m|
-        m.unwrap()
-    ).min()
+    first_indexes.iter()
+                 .map(|&first_index| {
+                     match find_end_of_match(haystack, rest, first_index) {
+                         Some(index) => Some(index - first_index + 1),
+                         None => None,
+                     }
+                 })
+                 .filter(|&m| m.is_some())
+                 .map(|m| m.unwrap())
+                 .min()
 }
 
 /// Find all occurrences of the character in the string, returning their indexes.
@@ -85,8 +83,10 @@ fn find_char_in_string(haystack: &str, needle: &char) -> Vec<usize> {
             Some(i) => {
                 indexes.push(i);
                 i + 1
-            },
-            None => { break; },
+            }
+            None => {
+                break;
+            }
         };
     }
 
@@ -99,7 +99,9 @@ fn find_end_of_match(haystack: &str, needles: &[char], first_index: usize) -> Op
     for needle in needles.iter() {
         last_index = match find_from_offset(haystack, *needle, last_index + 1) {
             Some(i) => i,
-            None => { return None; },
+            None => {
+                return None;
+            }
         };
     }
 
@@ -149,7 +151,7 @@ mod tests {
 
     #[test]
     fn test_scores_greater_than_zero_when_matches() {
-        let given_choices: Vec<&str> = vec!("a", "ab", "ba", "bab");
+        let given_choices: Vec<&str> = vec!["a", "ab", "ba", "bab"];
 
         for choice in given_choices.iter() {
             assert!(score(*choice, "a") > 0.0);
